@@ -1,0 +1,28 @@
+- hosts: 127.0.0.1
+  remote_user: root
+
+  tasks:
+  - name: install git
+    apt: name=git state=present
+
+  - name: install zsh
+    apt: name=zsh state=present
+
+  - name: create zshd
+    file: path=~/.zshd state=directory
+
+  - name: gist clone dot.zshrc
+    git: repo=https://gist.github.com/1555225.git dest=~/.zshd/dot.zshrc
+
+  - name: git clone auto-fu.zsh
+    git: repo=https://github.com/hchbaw/auto-fu.zsh.git
+         dest=~/.zshd/auto-fu.zsh
+
+  - name: create symblic link to .zshrc
+    file: src=~/.zshd/dot.zshrc/dot.zshrc dest=~/.zshrc state=link
+
+  - name: install emacs
+    apt: name=emacs state=present
+
+  - name: change shell to zsh
+    command: /usr/bin/chsh -s /usr/bin/zsh

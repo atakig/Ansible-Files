@@ -1,0 +1,27 @@
+- hosts: 127.0.0.1
+  remote_user: root
+
+  tasks:
+  - name: download hhvm.gpg.key
+    apt_key: url="http://dl.hhvm.com/conf/hhvm.gpg.key" state=present
+
+  - name: add source.list
+    apt_repository: repo='deb http://dl.hhvm.com/ubuntu trusty main'
+
+  - name: apt-get update
+    apt: update_cache=yes
+
+  - name: install hhvm
+    apt: name=hhvm state=present
+
+  - name: install nginx
+    apt: name=nginx state=present
+
+  - name: install zsh
+    apt: name=zsh state=present
+
+  - name: install nginx
+    apt: name=nginx state=present
+
+  - name: install git
+    apt: name=git state=present
