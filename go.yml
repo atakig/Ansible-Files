@@ -1,0 +1,21 @@
+- hosts: 127.0.0.1
+  remote_user: root
+  vars:
+    go_file: go1.3.3.linux-amd64.tar.gz
+
+  tasks:
+  - name: wget go binary
+    get_url: url="https://storage.googleapis.com/golang/{{ go_file }}" dest=/tmp/ mode=0644
+
+
+  - name: unarchive
+    command: sudo tar -C /usr/local -xzf {{ go_file }}
+
+  - name: add PATH environment variable
+    shell: echo "export PATH=$PATH:/usr/local/go/bin" > $HOME/.profile
+
+  - name: add Go tools location
+    shell: echo "export GOROOT=$HOME/go" > ~/.profile
+
+  - name: add Go tools PATH
+    shell: echo "export PATH=$PATH:$GOROOT/bin" > ~/.profile
