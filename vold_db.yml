@@ -1,0 +1,39 @@
+- hosts: 127.0.0.1
+  remote_user: root
+  connection: local
+  vars: 
+    install_dir: /usr/local/voltdb
+
+  tasks:
+    - name: install packages
+      apt: name={{ item }} state=present
+      sudo: yes
+      with_items:
+        - ant
+        - build-essential
+        - ant-optional
+        - default-jdk
+        - python
+        - valgrind
+        - ntp
+        - ccache
+        - git-arch
+        - git-completion
+        - git-core
+        - git-svn
+        - git-doc
+        - git-email
+        - python-httplib2
+        - python-setuptools
+        - python-dev
+        - apt-show-versions
+
+    - name: get sources
+      sudo: yes
+      git: repo=https://github.com/VoltDB/voltdb.git dest="{{ install_dir }}"
+
+    - name: build
+      sudo: yes
+      shell: ant
+      args:
+        chdir: "{{ install_dir }}"
