@@ -30,7 +30,7 @@
 
     - name: get sources
       sudo: yes
-      git: repo=https://github.com/VoltDB/voltdb.git dest="{{ install_dir }}"
+      git: repo=https://github.com/VoltDB/voltdb.git dest="{{ install_dir }}" version=voltdb-4.8
 
     - name: build
       sudo: yes
