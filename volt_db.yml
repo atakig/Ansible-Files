@@ -3,6 +3,8 @@
   connection: local
   vars: 
     install_dir: /usr/local/voltdb
+    volt_version: voltdb-4.9 
+
 
   tasks:
     - name: install packages
@@ -30,7 +32,7 @@
 
     - name: get sources
       sudo: yes
-      git: repo=https://github.com/VoltDB/voltdb.git dest="{{ install_dir }}" version=voltdb-4.8
+      git: repo=https://github.com/VoltDB/voltdb.git dest="{{ install_dir }}" version="{{ volt_version }}"
 
     - name: build
       sudo: yes
