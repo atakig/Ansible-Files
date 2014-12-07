@@ -2,6 +2,13 @@
   remote_user: root
 
   tasks:
+  - name: install git
+    apt: name=git state=present
+    sudo: yes
+
   - name: install beego
     command: go get github.com/astaxie/beego
+
+  - name: install beego tool
+    command: go get github.com/beego/bee
 

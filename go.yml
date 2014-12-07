@@ -2,6 +2,7 @@
   remote_user: root
   vars:
     go_file: go1.3.3.linux-amd64.tar.gz
+    go_path: /home/vagrant/go/
     work_dir: /tmp/
 
   tasks:
@@ -11,13 +12,17 @@
   - name: unarchive
     shell: sudo tar -C /usr/local -xzf {{ go_file }}
     args:
-      chdir: {{ work_dir }}
+      chdir: "{{ work_dir }}"
 
-  - name: add PATH environment variable
-    shell: echo "export PATH=$PATH:/usr/local/go/bin" > $HOME/.profile
+  - name: create Go tools directory
+    file: path="{{ go_path }}" state=directory
 
-  - name: add Go tools location
-    shell: echo "export GOROOT=$HOME/go" > ~/.profile
+  - name: add Go ROOT to environment variable
+    shell: echo "export GOROOT=/usr/local/go" >> $HOME/.profile
 
-  - name: add Go tools PATH
-    shell: echo "export PATH=$PATH:$GOROOT/bin" > ~/.profile
+  - name: add Go PATH to environment variable
+    shell: echo "export GOPATH={{ go_path }}" >> $HOME/.profile
+
+  - name: add go PATH to environment variable
+    shell: echo "export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin:$GOROOT/bin" >> $HOME/.profile
+
