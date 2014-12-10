@@ -1,0 +1,34 @@
+- hosts: 127.0.0.1
+  remote_user: root
+  vars:
+    db_name: dayrecords
+    user_name: dbuser
+    password: dbpass
+    privs: ALL
+    postgresql_admin_user: "postgres"
+    postgresql_default_auth_method: "trust"
+
+  tasks:
+  - name: install postgresql
+    apt: name=postgresql state=present
+    sudo: yes
+
+  - name: install python module for postgresql
+    apt: name=python-psycopg2 state=present
+    sudo: yes
+
+  - name: start postgresql
+    service: name=postgresql state=started
+    sudo: yes
+
+  - name: setup database
+    postgresql_db: name="{{ db_name }}" encoding='UTF-8' 
+    sudo: yes
+
+  - name: setup user
+    postgresql_user: db="{{ db_name }}" name="{{ user_name }}" password="{{ password }}"
+
+  - name: setup PRIVS
+    postgresql_privs: database="{{ db_name }}" roles="{{ user_name }}" priv="{{ privs }}"
+
+
