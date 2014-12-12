@@ -1,12 +1,11 @@
 - hosts: 127.0.0.1
   remote_user: root
   vars:
+    pg_hba_conf: /etc/postgresql/9.3/main/pg_hba.conf
     db_name: dayrecords
     user_name: dbuser
     password: dbpass
     privs: ALL
-    postgresql_admin_user: "postgres"
-    postgresql_default_auth_method: "trust"
 
   tasks:
   - name: install postgresql
@@ -15,6 +14,10 @@
 
   - name: install python module for postgresql
     apt: name=python-psycopg2 state=present
+    sudo: yes
+
+  - name: edit pg_hba.conf
+    lineinfile: dest={{ pg_hba_conf }} backup=yes regexp='^local(\s)+all(\s)+postgres(\s)+peer' line='local all postgres trust' state=present
     sudo: yes
 
   - name: start postgresql
@@ -29,6 +32,6 @@
     postgresql_user: db="{{ db_name }}" name="{{ user_name }}" password="{{ password }}"
 
   - name: setup PRIVS
-    postgresql_privs: database="{{ db_name }}" roles="{{ user_name }}" priv="{{ privs }}"
+    postgresql_privs: database="{{ db_name }}" roles="{{ user_name }}" type=database priv="{{ privs }}"
 
 
