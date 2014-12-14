@@ -24,6 +24,6 @@
   - name: add Go PATH to environment variable
     shell: echo "export GOPATH={{ go_path }}" >> $HOME/.profile
 
-  - name: add go PATH to environment variable
+  - name: add goroot and gopath to environment variable
     shell: echo "export PATH=$PATH:{{ go_install_dir }}/go/bin:{{ go_path }}/bin" >> $HOME/.profile
 
