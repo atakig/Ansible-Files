@@ -17,7 +17,7 @@
     sudo: yes
 
   - name: edit pg_hba.conf
-    lineinfile: dest={{ pg_hba_conf }} backup=yes regexp='^local(\s)+all(\s)+postgres(\s)+peer' line='local all postgres trust' state=present
+    lineinfile: dest={{ pg_hba_conf }} backup=yes regexp='^local(\s)+all(\s)+postgres(\s)+peer' line='local all postgres trust' state=absent
     sudo: yes
 
   - name: start postgresql
@@ -26,12 +26,11 @@
 
   - name: setup database
     postgresql_db: name="{{ db_name }}" encoding='UTF-8' 
-    sudo: yes
 
   - name: setup user
     postgresql_user: db="{{ db_name }}" name="{{ user_name }}" password="{{ password }}"
 
-  - name: setup PRIVS
+  - name: setup privs
     postgresql_privs: database="{{ db_name }}" roles="{{ user_name }}" type=database priv="{{ privs }}"
 
 
