@@ -6,6 +6,7 @@
     user_name: dbuser
     password: dbpass
     privs: ALL
+    hostname: 192.168.33.12
 
   tasks:
   - name: install postgresql
@@ -17,11 +18,20 @@
     sudo: yes
 
   - name: edit pg_hba.conf
-    lineinfile: dest={{ pg_hba_conf }} backup=yes regexp='^local(\s)+all(\s)+postgres(\s)+peer' line='local all postgres trust' state=absent
+    lineinfile: dest={{ pg_hba_conf }} backup=yes regexp='^local(\s)+all(\s)+postgres(\s)+peer' line='local all postgres trust' state=present insertafter="^# TYPE"
     sudo: yes
 
+  # - name: reboot machine
+  #   command: shutdown -r now
+  #   async: 0
+  #   sudo: yes
+
+  # - name: waiting for server to come back
+  #   local_action: wait_for host={{ hostname }} state=started
+  #   sudo: false
+
   - name: start postgresql
-    service: name=postgresql state=started
+    service: name=postgresql state=restarted
     sudo: yes
 
   - name: setup database
