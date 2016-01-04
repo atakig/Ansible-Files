@@ -1,7 +1,7 @@
 - hosts: 127.0.0.1
   remote_user: root
   vars:
-    go_file: go1.4.linux-amd64.tar.gz
+    go_file: go1.5.2.linux-amd64.tar.gz
     go_install_dir: /usr/local
     go_path: /vagrant/go
     work_dir: /tmp/
@@ -27,3 +27,8 @@
   - name: add goroot and gopath to environment variable
     shell: echo "export PATH=$PATH:{{ go_install_dir }}/go/bin:{{ go_path }}/bin" >> $HOME/.profile
 
+  - name: upgrade packages
+    apt: upgrade=full
+
+  - name: install git
+    apt: name=git state=latest
