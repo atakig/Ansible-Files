@@ -29,6 +29,18 @@
 
   - name: upgrade packages
     apt: upgrade=full
+    sudo: yes
 
   - name: install git
     apt: name=git state=latest
+    sudo: yes
+
+  - name: install mercurial
+    apt: name=mercurial state=latest
+    sudo: yes
+
+  - name: go get gocode
+    shell: go get -u github.com/nsf/gocode
+
+  - name: go get godef
+    shell: go get -u code.google.com/p/rog-go/exp/cmd/godef
