@@ -1,0 +1,70 @@
+- hosts: 127.0.0.1
+  remote_user: root
+  connection: local
+  vars:
+    download_site: http://ftp.drupal.org/files/projects/
+    download_file: drupal-8.0.0-beta4
+    local_template_dir: template/
+    apache2_config_dir: /etc/apache2/sites-available/
+    drupal_virtual_dir: /var/www/drupal
+    virtual_host_config: drupal.conf
+    download_ext: .tar.gz
+    drupal_work_dir: sites/default/files/transactions/
+    drupal_default_settings_file: sites/default/default.settings.php
+    drupal_default_services_file: sites/default/default.services.php
+    drupal_settings_file: sites/default/settings.php
+    drupal_services_file: sites/default/services.php
+
+  tasks:
+    - name: install packages
+      apt: name={{ item }} state=present
+      sudo: yes
+      with_items:
+        - apache2
+        - mysql-server
+        - php5
+        - php5-mysql
+        - php5-gd
+
+    - name: make drupal dir
+      file: path="{{ drupal_virtual_dir }}" state=directory
+
+    - name: create drupal virtual host file
+      template: src="{{ local_template_dir }}""{{ virtual_host_config }}" dest="{{ apache2_config_dir  }}""{{ virtual_host_config }}"
+      sudo: yes
+
+    - name: a2ensite drupal
+      command: a2ensite drupal
+      sudo: yes
+
+    - name: a2dissite default
+      command: a2dissite 000-default
+      sudo: yes
+
+    - name: download drupal
+      get_url: url="{{ download_site }}""{{ download_file }}""{{ download_ext }}" dest=/tmp
+      sudo: yes
+
+    - name: unarchive download drupal tar.gz
+      unarchive: src=/tmp/{{ download_file }}{{ download_ext }} dest="{{ drupal_virtual_dir }}"
+
+    - name: add drupal work dir
+      file: path="{{ drupal_virtual_dir }}"/"{{ drupal_work_dir }}" state=directory
+
+    - name: change writable 
+      file: path="{{ drupal_virtual_dir }}"/"{{ drupal_work_dir }}" mode=o-wx recurse=yes state=directory
+
+    - name: copy setting_file
+      copy: src="{{ drupal_virtual_dir }}"/"{{ drupal_default_settings_file }}" dest="{{ drupal_virtual_dir }}"/"{{ drupal_settings_file }}"
+
+    - name: copy services_file
+      copy: src="{{ drupal_virtual_dir }}"/"{{ drupal_default_services_file }}" dest="{{ drupal_virtual_dir }}"/"{{ drupal_services_file }}"
+
+    - name: change settings.php writable 
+      file: path="{{ drupal_virtual_dir }}"/"{{ drupal_settings_file }}" mode=o-wx
+
+    - name: change services.yml writable
+      file: path="{{ drupal_virtual_dir }}"/"{{ drupal_services_file }}" mode=o-wx
+
+    - name: reboot apache2
+      service: name=apache2 state=restarted
