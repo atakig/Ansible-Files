@@ -4,7 +4,11 @@
     go_file: go1.5.2.linux-amd64.tar.gz
     go_install_dir: /usr/local
     go_path: /vagrant/go
-    work_dir: /tmp/
+    work_dir: /tmp
+    zsh_id: 1555225
+    tmux_id: 1779907
+    zsh_mark: zsh
+    tmux_mark: tmuz
 
   tasks:
   - name: wget go binary
@@ -19,16 +23,16 @@
     file: path="{{ go_path }}" state=directory
 
   - name: add Go ROOT to environment variable
-    shell: echo "export GOROOT={{ go_install_dir }}/go" >> $HOME/.profile
+    shell: echo "export GOROOT={{ go_install_dir }}/go" >> {{ ansible_env.HOME }}/.profile
 
   - name: add Go PATH to environment variable
-    shell: echo "export GOPATH={{ go_path }}" >> $HOME/.profile
+    shell: echo "export GOPATH={{ go_path }}" >> {{ ansible_env.HOME }}/.profile
 
   - name: add goroot and gopath to environment variable
-    shell: echo "export PATH=$PATH:{{ go_install_dir }}/go/bin:{{ go_path }}/bin" >> $HOME/.profile
+    shell: echo "export PATH=$PATH:{{ go_install_dir }}/go/bin:{{ go_path }}/bin" >> {{ ansible_env.HOME }}/.profile
 
   - name: upgrade packages
-    apt: upgrade=full
+    apt: update_cache=ues upgrade=dist
     sudo: yes
 
   - name: install git
@@ -40,7 +44,32 @@
     sudo: yes
 
   - name: go get gocode
-    shell: go get -u github.com/nsf/gocode
+    shell: . $HOME/.profile && go get -u github.com/nsf/gocode
 
   - name: go get godef
-    shell: go get -u code.google.com/p/rog-go/exp/cmd/godef
+    shell: . $HOME/.profile && go get code.google.com/p/rog-go/exp/cmd/godef
+
+  - name: install emacs
+    apt: name=emacs state=latest
+    sudo: yes
+
+  - name: install spacemacs
+    git: repo=https://github.com/syl20bnr/spacemacs.git dest={{ ansible_env.HOME }}/.emacs.d
+
+  - name: chown .emacs.d
+    file: path={{ ansible_env.HOME }}/.emacs.d owner=vagrant group=vagrant recurse=yes state=directory
+
+  - name: install zsh
+    apt: name=zsh state=latest
+
+  - name: get .zshrc
+    git: repo=https://gist.github.com/atakig/"{{ zsh_id }}" dest="{{ work_dir }}"/"{{ zsh_mark }}"
+
+  - name: copy .zshrc
+    shell: create="{{ work_dir }}"/"{{ zsh_mark }}"/dot.zshrc cp "{{ work_dir }}"/"{{ zsh_mark }}"/dot.zshrc {{ ansible_env.HOME }}/.zshrc
+
+  - name: get .tmux.conf
+    git: repo=https://gist.github.com/atakig/"{{ tmux_id }}"/dot_tmux dest="{{ work_dir }}"/"{{ tmux_mark }}"
+
+  - name: copy .tmux.conf
+    shell: create="{{ work_dir }}"/"{{ tmux_id }}"/dot.tmux.conf cp "{{ work_dir }}"/"{{ tmux_mark }}"/dot.tmux.conf {{ ansible_env.HOME }}/.tmux.conf

@@ -2,45 +2,32 @@
   remote_user: root
   vars:
     pg_hba_conf: /etc/postgresql/9.3/main/pg_hba.conf
-    db_name: dayrecords
-    user_name: dbuser
-    password: dbpass
-    privs: ALL
-    hostname: 192.168.33.12
+    db_name: accounts
+    user_name: ac_user
+    password: ac_pass
 
   tasks:
   - name: install postgresql
     apt: name=postgresql state=present
     sudo: yes
 
-  - name: install python module for postgresql
+  - name: install postgresql
     apt: name=python-psycopg2 state=present
     sudo: yes
 
-  - name: edit pg_hba.conf
-    lineinfile: dest={{ pg_hba_conf }} backup=yes regexp='^local(\s)+all(\s)+postgres(\s)+peer' line='local all postgres trust' state=present insertafter="^# TYPE"
+  - name: add user auth
+    lineinfile:  dest="{{ pg_hba_conf }}" state=present line="local {{ db_name }} {{ user_name }} password"
     sudo: yes
-
-  # - name: reboot machine
-  #   command: shutdown -r now
-  #   async: 0
-  #   sudo: yes
-
-  # - name: waiting for server to come back
-  #   local_action: wait_for host={{ hostname }} state=started
-  #   sudo: false
 
   - name: start postgresql
     service: name=postgresql state=restarted
     sudo: yes
 
   - name: setup database
-    postgresql_db: name="{{ db_name }}" encoding='UTF-8' 
+    postgresql_db: name="{{ db_name }}" encoding='UTF-8'
 
   - name: setup user
     postgresql_user: db="{{ db_name }}" name="{{ user_name }}" password="{{ password }}"
 
   - name: setup privs
-    postgresql_privs: database="{{ db_name }}" roles="{{ user_name }}" type=database priv="{{ privs }}"
-
-
+    postgresql_privs: database="{{ db_name }}" roles="{{ user_name }}" type=database priv=ALL
